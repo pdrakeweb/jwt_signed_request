@@ -18,7 +18,10 @@ module JWTSignedRequest
           **optional_settings
         )
 
-        env[:request_headers].store("Authorization", jwt_token)
+        env[:request_headers].store(
+          "Authorization",
+          options.key?(:bearer) ? "Bearer #{jwt_token}" : jwt_token
+        )
         app.call(env)
       end
 
@@ -33,6 +36,7 @@ module JWTSignedRequest
           additional_headers_to_sign: options[:additional_headers_to_sign],
           key_id:                     options[:key_id],
           issuer:                     options[:issuer],
+          query_string_hash:          options[:query_string_hash]
         }.reject { |_, value| value.nil? }
       end
     end

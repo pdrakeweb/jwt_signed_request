@@ -8,13 +8,14 @@ module JWTSignedRequest
       new(**args).generate
     end
 
-    def initialize(method:, path:, headers:, body:, additional_headers_to_sign:, issuer:)
+    def initialize(method:, path:, headers:, body:, additional_headers_to_sign:, issuer:, query_string_hash:)
       @method = method
       @path = path
       @headers = headers || EMPTY_HEADERS
       @body = body
       @additional_headers_to_sign = additional_headers_to_sign || EMPTY_HEADERS
       @issuer = issuer
+      @query_string_hash = query_string_hash
     end
 
     private_class_method :new
@@ -28,12 +29,13 @@ module JWTSignedRequest
         exp: (Time.now + timeout).to_i
       }
       result[:iss] = issuer if issuer
+      result[:qsh] = query_string_hash_value if query_string_hash
       result
     end
 
     private
 
-    attr_reader :method, :path, :headers, :body, :additional_headers_to_sign, :issuer
+    attr_reader :method, :path, :headers, :body, :additional_headers_to_sign, :issuer, :query_string_hash
 
     HEADERS_TO_SIGN = %w(
       Content-Type
@@ -81,6 +83,10 @@ module JWTSignedRequest
 
     def serialized_headers
       JSON.dump(filtered_headers)
+    end
+
+    def query_string_hash_value
+      Digest::SHA256.hexdigest("#{method.to_s.upcase}&#{path}")
     end
   end
 end

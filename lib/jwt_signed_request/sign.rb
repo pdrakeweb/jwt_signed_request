@@ -16,7 +16,8 @@ module JWTSignedRequest
       key_id: nil,
       lookup_key_id: key_id,
       issuer: nil,
-      additional_headers_to_sign: nil
+      additional_headers_to_sign: nil,
+      query_string_hash: false
     )
       @method = method
       @path = path
@@ -27,6 +28,7 @@ module JWTSignedRequest
       @key_id = key_id
       @lookup_key_id = lookup_key_id
       @issuer = issuer
+      @query_string_hash = query_string_hash
       @additional_headers_to_sign = additional_headers_to_sign
     end
 
@@ -38,7 +40,8 @@ module JWTSignedRequest
 
     attr_reader \
       :method, :path, :body, :headers,
-      :key_id, :lookup_key_id, :issuer, :additional_headers_to_sign
+      :key_id, :lookup_key_id, :issuer, :additional_headers_to_sign,
+      :query_string_hash
 
     def stored_key
       @stored_key ||= JWTSignedRequest.key_store.get_signing_key(key_id: lookup_key_id)
@@ -63,7 +66,8 @@ module JWTSignedRequest
         headers: headers,
         body: body,
         additional_headers_to_sign: additional_headers_to_sign,
-        issuer: issuer
+        issuer: issuer,
+        query_string_hash: query_string_hash
       )
     end
   end
